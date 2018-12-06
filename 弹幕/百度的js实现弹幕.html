@@ -1,0 +1,416 @@
+<!--作者：natural_live 时间：2017-7-30 -->
+<!-- <!doctype html>
+<html lang="en">
+ <head>
+  <title>弹幕</title>
+  <style>
+	/**{margin:0;padding:0;}*/
+ 
+	#barrage{
+		margin:auto;
+		margin-top:50px;
+		position:relative;
+		width:800px;
+		height:400px;
+		background:#fff;
+		border:2px solid #ffcc00;
+	}
+ 
+	#barrage div{
+		width:100%;
+		height:20px;
+		line-height:20px;
+		position:absolute;
+	}
+ 
+	#btn{
+		margin:auto;
+		margin-top:30px;
+		height:50px;
+		width:300px;
+	}
+	#text{
+		font-size:20px;
+		height:30px;
+		border-radius:4px;
+		border:1px solid #c8cccf;
+		color:#6a6f77;
+	}
+	#submit{
+		padding:7px;
+		font-size:14px;
+		height:30px;
+		border-radius:4px;
+		border:1px solid #c8cccf;
+	}
+  </style>
+ </head>
+ <body>
+	<div id="barrage"></div>
+	<div id="btn">
+		<input type="text" id="text"></input>
+		<input type="button" id="submit" value="发送"></input>
+	</div>
+	<script>
+		var timer=null;
+		var current=[];//存储当前输入框的内容
+		var newarr=[];//存储每个弹幕距左边框的距离
+		var flag=0;//标志量
+		var num=new Array();//数组，用来存储划分每个块的序号
+		//var t=12;
+		var words = ["富强","民主","文明","和谐","自由","平等","公正","法治","爱国","敬业","诚信","友善"];
+		function $(id){
+			return document.getElementById(id);
+		}
+		for(var i=0;i<$("barrage").offsetHeight/20 - 1;i++){
+			num.splice(i,0,i);//将整个显示框划分成多个块，并对每个块进行标号
+			//console.log(num)
+		}
+		//console.log(num)
+		//console.log(num.length)
+ 
+		window.onload = function(){//加载页面发生的事件
+ 
+			clearInterval(timer);//清除定时器
+			for(var i = 0;i<10;i++){
+				setTimeout(function(){
+					var word=words[random(0,words.length-1)];//随机产生一个弹幕的内容
+					create(word);//创建一个弹幕
+				},100*random(10,100))//给弹幕随机加一个延迟
+				
+			}
+			timer=setInterval(move,20);//开启定时器
+		}
+ 
+		function create(w){//创建一个弹幕
+				var node=document.createElement("div");//创建一个div元素，用来存储弹幕的信息
+				//console.log(words.length)
+				node.innerHTML=w;
+				//console.log($("barrage").offsetHeight)
+				var t= random(0,num.length-1);
+				//console.log(num)
+				node.style.top=num[t]*20+"px";//从划分的块中随机选中一块。
+				Delete(num[t]);//删除已被选中的块
+				//console.log(t)
+				//console.log(node.style.top);
+				node.style.left="800px";
+				node.style.color="#"+randomColor();//随机颜色
+				$("barrage").appendChild(node);//插入子节点
+				flag++;//创建了一个新弹幕时，更新为0
+				
+				//console.log(node.offsetLeft)
+		}
+ 
+		function move(){
+			var arr=$("barrage").getElementsByTagName("div");//获取所有的弹幕
+            for(var i=0;i<arr.length;i++){
+                newarr.push(arr[i].offsetLeft);//将每个弹幕距左边边框的距离分别存储在newarr数组中
+                arr[i].style.left=newarr[i]+"px";//更新距离
+                newarr[i] = newarr[i] - 2;//每次减少2px
+                if(newarr[i]<0){
+					//console.log(arr[i].innerHTML)
+					if(currentTest(arr[i].innerHTML) && flag != 0){//当是从输入框发送的弹幕时而且是第一次时,将内容添加到预备的词库中，并删除这个div元素。这么做是为了将弹幕数量维持在一定数量，防止在输入框发送大量弹幕，导致出现错误。
+						//console.log(current)
+						words.push(arr[i].innerHTML);
+						$("barrage").removeChild(arr[i]);
+						newarr.splice(i,1);//在newarr中删除这个div
+						flag--;
+					}else{//当弹幕到达最左边时，弹幕内容再次随机，同时，将这个块加入到预选块中，并在预选块中随机再选一个，颜色也再次随机，这样就保持块的数量不变。
+						newarr[i]=800;
+						//console.log(parseInt(arr[i].style.top))
+						//console.log(arr[i].style.top/20)
+						arr[i].innerHTML=words[random(0,words.length-1)];
+						num.splice(num.length,0,parseInt(arr[i].style.top)/20);
+						
+						
+						var t= random(0,num.length);
+						arr[i].style.top=num[t]*20+"px";
+						Delete(num[t]);
+						//console.log(num)
+						//console.log(node.style.top);
+						arr[i].style.left="800px";
+						arr[i].style.color="#"+randomColor();
+					}
+				}
+            }
+		}
+ 
+		$("submit").onclick=function(){//输入款发送弹幕
+			create($("text").value);
+			current[current.length]=$("text").value;
+			//console.log(current)
+			$("text").value="";
+		}
+		//console.log(num)
+		function Delete(m){//从预选块中删除已被选择的块
+			for(var i = 0;i < num.length;i++){
+				if(num[i] == m){
+					//console.log(m)
+					num.splice(i,1);
+				}
+			}
+		}
+ 
+		function currentTest(m){
+			var fl=false;
+			for(var i = 0;i < current.length;i++){
+				if(current[i] == m){
+					//console.log(m)
+					current.splice(i,1);
+					fl=true;
+				}
+			}
+			return fl;
+		}
+ 
+		function randomColor(){//随机颜色
+			var color=Math.ceil(Math.random()*16777215).toString(16);
+ 
+			while(color.length < 6){
+				color = "0" + color;
+			}
+			return color;
+		}
+ 
+		function random(m,n){//随机在m、n之间的整数
+			return Math.round(Math.random()*(n - m)) + m;
+		}
+	</script>
+ </body>
+</html>  -->
+
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+	<title>danmu</title>
+	<style type="text/css">
+* {
+    box-sizing: border-box;
+    outline: none;
+}
+
+p {
+    margin: .5em;
+    word-break: break-all;
+}
+
+.container {
+    position: relative;
+    width: 700px;
+    height: 500px;
+    margin: auto;
+    padding-right: 200px;
+}
+
+.content {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #ccc;
+}
+
+.content-opt {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 200px;
+    height: 100%;
+}
+
+.content-text {
+    height: calc(100% - 30px);
+    margin-bottom: 30px;
+    border: 1px solid #ccc;
+    overflow: auto;
+}
+
+.content-input {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 30px;
+    border: 1px solid #ccc;
+}
+
+.content-input input {
+    width: 70%;
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.content-input button {
+    padding: 3px 10px;
+    border: none;
+    border-radius: 5px;
+    background: rgb(90, 154, 214);
+}
+	</style>
+</head>
+<body>
+<div class="container">
+    <div id="content" class="content"></div>
+    <div class="content-opt">
+        <div id="content-text" class="content-text"></div>
+        <div class="content-input">
+            <input id="text" type="text">
+            <button id="send">发送</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+(function () {
+    class Barrage {
+        constructor(id) {
+            this.domList = [];
+            this.dom = document.querySelector('#' + id);
+            if (this.dom.style.position == '' || this.dom.style.position == 'static') {
+                this.dom.style.position = 'relative';
+            }
+            this.dom.style.overflow = 'hidden';
+            let rect = this.dom.getBoundingClientRect();
+            this.domWidth = rect.right - rect.left;
+            this.domHeight = rect.bottom - rect.top;
+        }
+
+        shoot(text) {
+            let div = document.createElement('div');
+            div.style.position = 'absolute';
+            div.style.left = this.domWidth + 'px';
+            div.style.top = (this.domHeight - 20) * +Math.random().toFixed(2) + 'px';
+            div.style.whiteSpace = 'nowrap';
+            div.style.color = '#' + Math.floor(Math.random() * 256).toString(10);
+            div.innerText = text;
+            this.dom.appendChild(div);
+
+            let roll = (timer) => {
+                let now = +new Date();
+                roll.last = roll.last || now;
+                roll.timer = roll.timer || timer;
+                let left = div.offsetLeft;
+                let rect = div.getBoundingClientRect();
+                if (left < (rect.left - rect.right)) {
+                    this.dom.removeChild(div);
+                } else {
+                    if (now - roll.last >= roll.timer) {
+                        roll.last = now;
+                        left -= 3;
+                        div.style.left = left + 'px';
+                    }
+                    requestAnimationFrame(roll);
+                }
+            }
+            roll(50 * +Math.random().toFixed(2));
+        }
+
+    }
+
+    let barage = new Barrage('content');
+
+    function appendList(text) {
+        let p = document.createElement('p');
+        p.innerText = text;
+        document.querySelector('#content-text').appendChild(p);
+    }
+
+    document.querySelector('#send').onclick = () => {
+        let text = document.querySelector('#text').value;
+        barage.shoot(text);
+
+        appendList(text);
+    };
+
+    const textList = ['弹幕', '666', '233333333', 'javascript', 'html', 'css', '前端框架', 'Vue', 'React', 'Angular',
+        '测试弹幕效果'
+    ];
+    textList.forEach((s) => {
+        barage.shoot(s);
+        appendList(s);
+    })
+})()
+
+
+</script>
+</body>
+</html>
+ -->
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>danmu</title>
+	<style type="text/css">
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	#box{
+		height: 500px;
+		border:1px solid red;
+	}
+	#haha{
+		margin-top: 30px;
+		text-align: center;
+	}
+	#txt{
+		width: 300px;
+		height: 30px;
+	}
+	#send{
+		width: 60px;
+		height: 30px;
+	}
+	</style>
+</head>
+<body>
+<div id="box" class="box"></div>
+<div id="haha">
+<input type="text" id="txt" placeholder="说点什么？" />
+<button onclick="send()" id="send">发送</button>
+</div>
+<script type="text/javascript">
+function $(str) {
+ return document.getElementById(str);
+}
+function send() {
+ var word = $('txt').value;
+ var span = document.createElement('span');
+ var top = parseInt(Math.random() * 500)-20;
+ var color1 = parseInt(Math.random() * 256);
+ var color2 = parseInt(Math.random() * 256);
+ var color3 = parseInt(Math.random() * 256);
+ var color = "rgb(" + color1 + "," + color2 + "," + color3 + ")";
+ top = top < 0 ? 0 : top;
+ span.style.position = 'absolute';
+ span.style.top = top + "px";
+ span.style.color = color;
+ span.style.left = '1350px';
+ span.style.whiteSpace = 'nowrap';
+ var nub = (Math.random() * 10) + 1;
+ span.setAttribute('speed', nub);
+ span.speed = nub;
+ span.innerHTML = word;
+ $('box').appendChild(span);
+ // $('txt').value = "";
+}
+
+setInterval(move, 200);
+
+function move() {
+ var spanArray = $('box').children;
+ for (var i = 0; i < spanArray.length; i++) {
+  spanArray[i].style.left =parseInt(spanArray[i].style.left) - spanArray[i].speed + 'px';
+ }
+}
+
+
+
+
+
+
+
+</script>
+</body>
+</html>

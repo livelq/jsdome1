@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>正则表达式验证邮箱</title>
+</head>
+<body style="text-align: center; ">
+<h1>正则表达式验证邮箱</h1>
+<p style="margin-top: 50px;">请输入E-mail:
+<input type="text" name="E-mail:" id="address">
+</p>
+<p>
+<input type="button" value="验证" style="width: 100px;" onclick="check(document.getElementById('address').value);">
+</p>
+
+
+<script type="text/javascript">
+function check(address){
+	var reg = /^([\w\d\.\_\-]+)@([\w\d]+\.[a-z]{2,3})+$/g;
+	
+	if(reg.test(address))
+	{
+		var yhm = address.replace(reg,'$1');
+		var ym = address.replace(reg,'$2');
+		var output = '邮箱格式输入正确\n\n';
+		output += '用户名：' + yhm +'\n';
+		output += '域名：' + ym +'\n';
+		alert(output);
+		return true;
+	}
+	else
+	{
+		alert('邮箱格式输入不正确');
+		return false;
+	}
+}
+
+</script>
+</body>
+</html>

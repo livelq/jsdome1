@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>js实现弹幕</title>
+	<style type="text/css">
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	#div1{
+		border:2px solid red;
+		height: 520px;
+	}
+	#div2{
+		width: 400px;
+		margin: 0 auto;
+		margin-top: 40px;
+	}
+	#text{
+		border:1px solid #c8ccf;
+		height: 30px;
+		width: 300px;
+	}
+	#submit{
+		height: 33px;
+		width: 50px;
+	}
+	</style>
+</head>
+<body>
+<div id="div1"></div>
+<div id="div2">
+<input type="text" placeholder="说点什么？" id="text">
+<input type="button" value="发送" id="submit" onclick="send()">
+</div>
+
+
+<script type="text/javascript">
+//获取ID函数
+function getId(idStr){
+	return document.getElementById(idStr);
+}
+function send(){
+	var word = getId('text').value;
+	var span = document.createElement('span');
+	// var tall = parseInt(Math.random()*500)-20;
+	//高度随机
+	var top = parseInt(Math.random() * 500)-20;
+	//颜色随机
+	var color1 = parseInt(Math.random()*256);
+	var color2 = parseInt(Math.random()*256);
+	var color3 = parseInt(Math.random()*256);
+	var color = 'rgb('+ color1 + ',' + color2 +',' + color3 + ')';
+	top = top < 0 ? 0 : top;
+	// tall = tall < 0 ? 0 : tall;
+	span.style.position = 'absolute';
+	span.style.left = '1350px';
+	span.style.color = color;
+	span.style.top = top + "px";
+	// span.style.tall = tall + 'px';
+	span.style.whiteSpace = 'nowrap';
+	var num = parseInt(Math.random()*10) + 1;
+	span.setAttribute ('speed',num);
+	span.speed = num;
+	span.innerHTML = word;
+	getId('div1').appendChild(span);
+	// getId('text').value = '';
+} 
+setInterval(moveLeft,100);
+//运用定时器的原理
+function moveLeft(){
+	var spanArray = getId('div1').children;
+	for(var i=0;i<spanArray.length;i++)
+	{//改变元素左边的距离，使之看起来向左移动
+		spanArray[i].style.left = parseInt(spanArray[i].style.left)-spanArray[i].speed + 'px';
+	}
+}
+</script>
+</body>
+</html>
